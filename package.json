@@ -46,6 +46,7 @@
     "vite": "^6.4.3"
   },
   "dependencies": {
+    "@creativoma/liquid-glass": "^1.2.0",
     "@electron-toolkit/utils": "^4.0.0",
     "@fontsource/fira-code": "^5.2.7",
     "@fontsource/fira-sans": "^5.2.7",

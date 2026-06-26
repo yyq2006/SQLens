@@ -44,18 +44,18 @@ export function Sidebar({ active, onChange }: Props): JSX.Element {
             <div
               key={item.label}
               onClick={() => onChange(item.label)}
-              className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 group ${
-                isActive
-                  ? 'bg-white/70 dark:bg-white/10 text-blue-700 dark:text-blue-300 font-medium shadow-sm border border-white/60 dark:border-white/5'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
+              className={`flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl cursor-pointer transition-all duration-200 group select-none
+                ${isActive
+                  ? 'bg-white/70 dark:bg-white/10 text-blue-700 dark:text-blue-300 font-medium shadow-sm border border-white/60 dark:border-white/5 backdrop-blur-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-white/40 dark:hover:bg-white/[0.06] hover:text-slate-800 dark:hover:text-slate-200 hover:backdrop-blur-sm'
+                }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 transition-all duration-200 ${
+              <Icon className={`w-4 h-4 shrink-0 transition-all ${
                 isActive
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
               }`} />
-              <span className="text-sm">{item.label}</span>
+              <span>{item.label}</span>
               {isActive && (
                 <ChevronRight className="w-3 h-3 ml-auto text-blue-400/60 dark:text-blue-500/60" />
               )}
@@ -70,7 +70,7 @@ export function Sidebar({ active, onChange }: Props): JSX.Element {
             <div
               key={item.label}
               onClick={() => onChange(item.label)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 group"
+              className="flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/[0.06] hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 group hover:backdrop-blur-sm select-none"
             >
               <Icon className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300" />
               <span>{item.label}</span>

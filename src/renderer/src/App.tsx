@@ -31,6 +31,7 @@ import { ChatPanel } from './components/ChatPanel'
 import { DatabaseBrowser } from './components/DatabaseBrowser'
 import { ReportViewer } from './components/ReportViewer'
 import { HistoryPanel } from './components/HistoryPanel'
+import { GlassButton, GlassDangerButton } from './components/GlassComponents'
 import { useScanManager } from './hooks/useScanManager'
 import { useTheme } from './hooks/useTheme'
 
@@ -193,26 +194,22 @@ function App(): JSX.Element {
                 className="flex-1 bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
               />
             </div>
-            <button
+            <GlassButton
               onClick={autoScan}
               disabled={!url.trim() || !sqlmapConnected}
-              className={`btn-glass flex items-center gap-1.5 px-4 py-2 text-sm font-medium cursor-pointer ${
-                !url.trim() || !sqlmapConnected ? 'opacity-50' : ''
-              }`}
+              className="flex items-center gap-1.5"
             >
               <Sparkles className="w-4 h-4" />
               <span>一键全自动</span>
-            </button>
-            <button
+            </GlassButton>
+            <GlassDangerButton
               onClick={() => activeTask && stopScan(activeTask.id)}
               disabled={!activeTask || activeTask.status !== 'running'}
-              className={`btn-glass-danger flex items-center gap-1.5 px-3 py-2 text-sm cursor-pointer ${
-                activeTask?.status !== 'running' ? 'opacity-40' : ''
-              }`}
+              className="flex items-center gap-1.5"
             >
               <Square className="w-3.5 h-3.5" />
               <span>停止</span>
-            </button>
+            </GlassDangerButton>
             <div className="flex items-center gap-1 border-l border-white/20 dark:border-white/5 pl-2.5">
               <button onClick={() => setShowEditor(true)}
                 className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white/40 dark:hover:bg-white/5 transition-all cursor-pointer"
