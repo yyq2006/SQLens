@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Fira Code + Fira Sans 字体已在 App.tsx 中通过 @fontsource 导入 */
+
+:root {
+  font-family: 'Fira Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 可拖拽区域（标题栏） */
+.draggable {
+  -webkit-app-region: drag;
+}
+
+.draggable button,
+.draggable input,
+.draggable select {
+  -webkit-app-region: no-drag;
+}

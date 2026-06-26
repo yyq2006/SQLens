@@ -1,0 +1,48 @@
+{
+  "name": "sqlens",
+  "version": "1.0.0",
+  "description": "SQL注入可视化分析工具 - AI驱动的图形化SQLMap外壳",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "postinstall": "echo 'skip electron-builder'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yyq2006/SQLens.git"
+  },
+  "keywords": [
+    "sqlmap",
+    "sql-injection",
+    "security",
+    "electron",
+    "desktop"
+  ],
+  "author": "yyq2006",
+  "license": "GPL-3.0",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yyq2006/SQLens/issues"
+  },
+  "homepage": "https://github.com/yyq2006/SQLens#readme",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "electron": "^42.5.0",
+    "electron-vite": "^5.0.0",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
+    "vite": "^6.4.3"
+  },
+  "dependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
+    "@fontsource/fira-code": "^5.2.7",
+    "@fontsource/fira-sans": "^5.2.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  }
+}
