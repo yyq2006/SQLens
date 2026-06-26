@@ -45,3 +45,4 @@ temp/
 *.db
 *.db-journal
 resources/sqlmap_pkg/
+dev-log.txt
