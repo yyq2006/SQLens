@@ -16,6 +16,8 @@ import { RequestEditor } from './components/RequestEditor'
 import { AiSettings } from './components/AiSettings'
 import { BatchScanner } from './components/BatchScanner'
 import { ChatPanel } from './components/ChatPanel'
+import { DatabaseBrowser } from './components/DatabaseBrowser'
+import { ReportViewer } from './components/ReportViewer'
 import { useScanManager } from './hooks/useScanManager'
 
 function App(): JSX.Element {
@@ -113,8 +115,6 @@ function App(): JSX.Element {
     setActiveSidebar(label)
     if (label === '设置') setShowAiSettings(true)
   }
-
-  // ---- 渲染 ----
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none"
          style={{ fontFamily: 'Fira Sans, system-ui, sans-serif' }}>
@@ -241,15 +241,21 @@ function App(): JSX.Element {
               />
 
               {/* 结果 */}
-              <div className="h-44 border-t border-slate-200 bg-white overflow-y-auto p-3">
-                <span className="text-xs font-semibold text-slate-500">📊 结果</span>
-                <div className="mt-2 text-xs text-slate-400">
-                  {activeTask
-                    ? (activeTask.status === 'completed'
-                      ? '扫描完成，结果功能将在后续版本中实现'
-                      : '等待扫描完成...')
-                    : '暂无扫描结果'}
-                </div>
+              <div className="h-52 border-t border-slate-200 bg-white overflow-hidden">
+                {activeSidebar === '报告' || activeSidebar === '报告' ? (
+                  <ReportViewer
+                    task={activeTask}
+                    onGenerateReport={(taskId) => console.log('生成报告:', taskId)}
+                  />
+                ) : (
+                  <DatabaseBrowser
+                    task={activeTask}
+                    onEnum={(taskId, opts) => {
+                      // 重新扫描枚举数据
+                      startScan(taskId, { ...options, url: activeTask?.url || '', ...opts } as any)
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>
