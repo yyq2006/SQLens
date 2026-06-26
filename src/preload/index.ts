@@ -6,6 +6,14 @@ const api = {
   stopSqlmapApi: () => ipcRenderer.invoke('sqlmap:stop'),
   getSqlmapStatus: () => ipcRenderer.invoke('sqlmap:status'),
 
+  // sqlmapapi 状态变化推送
+  onSqlmapStatusChange: (callback: (connected: boolean) => void) => {
+    ipcRenderer.on('sqlmap:statusChange', (_event, connected) => callback(connected))
+  },
+  removeSqlmapStatusChange: () => {
+    ipcRenderer.removeAllListeners('sqlmap:statusChange')
+  },
+
   // 扫描任务
   createTask: () => ipcRenderer.invoke('scan:createTask'),
   setOption: (taskId: string, options: Record<string, unknown>) =>
@@ -14,15 +22,7 @@ const api = {
   stopScan: (taskId: string) => ipcRenderer.invoke('scan:stop', taskId),
   getStatus: (taskId: string) => ipcRenderer.invoke('scan:status', taskId),
   getData: (taskId: string) => ipcRenderer.invoke('scan:data', taskId),
-  getLog: (taskId: string) => ipcRenderer.invoke('scan:log', taskId),
-
-  // 日志推送
-  onLog: (callback: (taskId: string, log: string) => void) => {
-    ipcRenderer.on('scan:log', (_event, taskId, log) => callback(taskId, log))
-  },
-  removeLogListener: () => {
-    ipcRenderer.removeAllListeners('scan:log')
-  }
+  getLog: (taskId: string) => ipcRenderer.invoke('scan:log', taskId)
 }
 
 contextBridge.exposeInMainWorld('sqlens', api)
