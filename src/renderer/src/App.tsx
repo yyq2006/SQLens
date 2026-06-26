@@ -1,6 +1,18 @@
 import { useEffect, useState, useCallback } from 'react'
 import '@fontsource/fira-code'
 import '@fontsource/fira-sans'
+import {
+  Shield,
+  Sun,
+  Moon,
+  Link,
+  Play,
+  Square,
+  Upload,
+  List,
+  ChevronDown,
+  Sparkles
+} from 'lucide-react'
 import './style.css'
 import { type ScanOptions, DEFAULT_OPTIONS, SCAN_TEMPLATES } from './types'
 import { Sidebar } from './components/Sidebar'
@@ -66,17 +78,6 @@ function App(): JSX.Element {
     }
 	  }, [])
 
-  // ---- 键盘快捷键 ----
-  useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); toggleTheme() }
-      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); autoScan() }
-      if (e.key === 'Escape') { setShowEditor(false); setShowAiSettings(false); setShowBatchScanner(false); setShowHistory(false) }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [autoScan, toggleTheme])
-
   // ---- 一键全自动（带 AI 分析） ----
   const autoScan = useCallback(async () => {
     if (!url.trim() || !sqlmapConnected) return
@@ -131,25 +132,44 @@ function App(): JSX.Element {
     if (label === '设置') setShowAiSettings(true)
     if (label === '历史记录') setShowHistory(true)
   }
+
+  // ---- 键盘快捷键 ----
+  useEffect(() => {
+    const handler = (e: KeyboardEvent): void => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); toggleTheme() }
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); autoScan() }
+      if (e.key === 'Escape') { setShowEditor(false); setShowAiSettings(false); setShowBatchScanner(false); setShowHistory(false) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [autoScan, toggleTheme])
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none"
          style={{ fontFamily: 'Fira Sans, system-ui, sans-serif' }}>
       {/* 标题栏 */}
-      <header className="h-9 bg-slate-900 text-white flex items-center px-4 draggable shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-cyan-400 text-sm">🛡️</span>
-          <span className="text-sm font-semibold tracking-wide" style={{ fontFamily: 'Fira Code' }}>
+      <header className="h-10 header-gradient text-white flex items-center px-4 draggable shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm font-bold tracking-wide" style={{ fontFamily: 'Fira Code' }}>
             SQLens
           </span>
-          <span className="text-xs text-slate-600 ml-1">v1.0</span>
+          <span className="text-[10px] text-slate-500 font-mono">v1.0</span>
         </div>
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 bg-slate-800/50 rounded-md px-2 py-1">
+            <kbd className="text-slate-500 bg-slate-900 px-1 rounded text-[9px] font-mono">⌘</kbd>
+            <span>+</span>
+            <kbd className="text-slate-500 bg-slate-900 px-1 rounded text-[9px] font-mono">⏎</kbd>
+            <span className="text-slate-500 ml-0.5">启动扫描</span>
+          </div>
           <button
             onClick={toggleTheme}
-            className="text-slate-500 hover:text-slate-300 text-xs px-1.5 py-0.5 rounded cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
             title={isDark ? '切换到亮色主题 (Ctrl+Shift+T)' : '切换到暗色主题 (Ctrl+Shift+T)'}
           >
-            {isDark ? '☀️' : '🌙'}
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
       </header>
@@ -160,63 +180,61 @@ function App(): JSX.Element {
 
         {/* 主区域 */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          {/* 操作栏 */}
-          <div className="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3 shrink-0">
-            <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 rounded px-3 py-1.5">
-              <span className="text-slate-400 shrink-0">🔗</span>
+          {/* 操作栏 - 现代风格 */}
+          <div className="h-14 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center px-4 gap-2.5 shrink-0">
+            <div className="flex-1 flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 input-field">
+              <Link className="w-4 h-4 text-slate-400 shrink-0" />
               <input
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && autoScan()}
                 placeholder="输入目标 URL，如 http://example.com/page?id=1"
-                className="flex-1 bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400"
+                className="flex-1 bg-transparent outline-none text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
               />
             </div>
             <button
               onClick={autoScan}
               disabled={!url.trim() || !sqlmapConnected}
-              className={`px-4 py-1.5 text-sm font-medium rounded transition-colors cursor-pointer ${
-                url.trim() && sqlmapConnected
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              className={`btn-primary flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg cursor-pointer ${
+                !url.trim() || !sqlmapConnected ? 'opacity-50' : ''
               }`}
             >
-              ▶ 一键全自动
+              <Sparkles className="w-4 h-4" />
+              <span>一键全自动</span>
             </button>
             <button
               onClick={() => activeTask && stopScan(activeTask.id)}
               disabled={!activeTask || activeTask.status !== 'running'}
-              className={`px-3 py-1.5 text-sm rounded transition-colors cursor-pointer ${
-                activeTask?.status === 'running'
-                  ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
-                  : 'border border-slate-200 text-slate-400 cursor-not-allowed'
+              className={`btn-danger flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg cursor-pointer ${
+                activeTask?.status !== 'running' ? 'opacity-50' : ''
               }`}
             >
-              ⏹ 停止
+              <Square className="w-3.5 h-3.5" />
+              <span>停止</span>
             </button>
-            <button
-              onClick={() => setShowEditor(true)}
-              className="px-3 py-1.5 text-sm border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer"
-            >
-              📥 导入
-            </button>
-            <button
-              onClick={() => setShowBatchScanner(true)}
-              className="px-3 py-1.5 text-sm border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer"
-            >
-              📋 批量
-            </button>
-            <select
-              onChange={(e) => e.target.value && applyTemplate(e.target.value)}
-              defaultValue=""
-              className="text-sm border border-slate-200 rounded px-2 py-1.5 text-slate-600 bg-white cursor-pointer"
-            >
-              <option value="" disabled>选择模板</option>
-              {SCAN_TEMPLATES.map((t) => (
-                <option key={t.name} value={t.name}>{t.label}</option>
-              ))}
-            </select>
+            <div className="flex items-center gap-1 border-l border-slate-200 dark:border-slate-700 pl-2.5">
+              <button onClick={() => setShowEditor(true)}
+                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                title="导入请求">
+                <Upload className="w-4 h-4" />
+                <span className="text-xs hidden lg:inline">导入</span>
+              </button>
+              <button onClick={() => setShowBatchScanner(true)}
+                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                title="批量扫描">
+                <List className="w-4 h-4" />
+                <span className="text-xs hidden lg:inline">批量</span>
+              </button>
+            </div>
+            <div className="relative">
+              <select onChange={(e) => e.target.value && applyTemplate(e.target.value)} defaultValue=""
+                className="appearance-none text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 pr-8 text-slate-600 dark:text-slate-400 dark:bg-slate-800 bg-white cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors outline-none">
+                <option value="" disabled>选择模板</option>
+                {SCAN_TEMPLATES.map((t) => (<option key={t.name} value={t.name}>{t.label}</option>))}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
           </div>
 
           {/* 任务标签页 */}

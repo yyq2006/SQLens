@@ -29,6 +29,11 @@ function createWindow(): void {
     mainWindow?.show()
   })
 
+  // 开发模式自动打开 DevTools
+  if (is.dev) {
+    mainWindow.webContents.openDevTools()
+  }
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }

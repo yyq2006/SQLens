@@ -1,0 +1,91 @@
+[36mvite v6.4.3 [32mbuilding SSR bundle for development...[36m[39m
+transforming...
+[32m✓[39m 3 modules transformed.
+rendering chunks...
+[2mout/main/[22m[36mindex.js  [39m[1m[2m18.80 kB[22m[1m[22m
+[32m✓ built in 162ms[39m
+[32m
+electron main process built successfully[39m
+[90m
+-----
+[39m
+[36mvite v6.4.3 [32mbuilding SSR bundle for development...[36m[39m
+transforming...
+[32m✓[39m 1 modules transformed.
+rendering chunks...
+[2mout/preload/[22m[36mindex.js  [39m[1m[2m2.43 kB[22m[1m[22m
+[32m✓ built in 22ms[39m
+[32m
+electron preload scripts built successfully[39m
+[90m
+-----
+[39m
+[32mdev server running for the electron renderer process at:
+[39m
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[32m
+starting electron app...
+[39m
+
+[23400:0626/092855.268:ERROR:CONSOLE(1)] "Unknown VE context: language-mismatch    at new He (devtools://devtools/bundled/ui/legacy/legacy.js:1:98356)
+    at devtools://devtools/bundled/ui/legacy/legacy.js:1:191793
+    at new oi (devtools://devtools/bundled/ui/legacy/legacy.js:1:192189)
+    at oi.instance (devtools://devtools/bundled/ui/legacy/legacy.js:1:192311)
+    at O.presentUI (devtools://devtools/bundled/panels/emulation/emulation.js:1:58454)
+    at #I (devtools://devtools/bundled/entrypoints/main/main.js:1:17314)
+    at #x (devtools://devtools/bundled/entrypoints/main/main.js:1:17109)", source: devtools://devtools/bundled/ui/visual_logging/visual_logging.js (1)
+[23400:0626/092855.570:ERROR:CONSOLE(1)] "Request Autofill.enable failed. {"code":-32601,"message":"'Autofill.enable' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[23400:0626/092855.570:ERROR:CONSOLE(1)] "Request Autofill.setAddresses failed. {"code":-32601,"message":"'Autofill.setAddresses' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[sqlmapapi] [09:28:56] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[09:28:56] [INFO] Admin (secret) token: 7428bdb271d3a8acc84bf31938299d6c
+
+[sqlmapapi] [09:28:56] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-bups2tuv'
+[09:28:56] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [09:28:56] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[sqlmapapi] [09:28:57] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[09:28:57] [INFO] Admin (secret) token: d3afed18f5240b7e8de65ebd0b8a7145
+[09:28:57] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-w_1ypj_s'
+
+[sqlmapapi] [09:28:57] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [09:28:57] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[09:28:57] [INFO] Admin (secret) token: 61e66b2762ec4963058d6627e94a2c20
+[09:28:57] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-zmfmug8u'
+
+[sqlmapapi] [09:28:57] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [09:28:58] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[sqlmapapi] [09:28:58] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[SQLens] sqlmapapi 启动超时
+[2m09:30:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/Sidebar.tsx, /src/style.css[22m
+[2m09:30:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ new dependencies optimized: [33mlucide-react[32m[39m
+[2m09:30:24[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[sqlmapapi] [09:30:26] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[09:30:26] [INFO] Admin (secret) token: 9fb98810ca9779b394044415b9da7c0a
+
+[sqlmapapi] [09:30:26] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-b104fisa'
+
+[sqlmapapi] [09:30:26] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [09:30:26] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[09:30:26] [INFO] Admin (secret) token: aaf81448d3b8d4eab082a5d74ed9ed31
+
+[sqlmapapi] [09:30:26] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-n5ofpc5a'
+
+[sqlmapapi] [09:30:26] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [09:30:26] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[sqlmapapi] [09:30:26] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[2m09:31:56[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/style.css[22m
+[2m09:32:00[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m09:32:07[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m09:32:33[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m09:32:40[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/style.css[22m
+[2m09:32:46[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/StatusBar.tsx, /src/style.css[22m
