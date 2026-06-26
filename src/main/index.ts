@@ -2,12 +2,14 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { SqlmapApiManager } from './sqlmap-manager'
+import { AiService } from './ai-service'
 
 let mainWindow: BrowserWindow | null = null
 const sqlmapManager = new SqlmapApiManager({
   autoStart: true,
   pythonPath: 'python'
 })
+const aiService = new AiService()
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -139,6 +141,60 @@ ipcMain.handle('scan:log', async (_event, taskId: string) => {
   } catch (err) {
     const error = err as Error
     return { log: [], success: false, error: error.message }
+  }
+})
+
+// ====== AI IPC Handlers ======
+
+ipcMain.handle('ai:getConfig', () => {
+  return aiService.getConfig()
+})
+
+ipcMain.handle('ai:updateConfig', (_event, config: { apiKey: string; baseUrl?: string; model?: string }) => {
+  aiService.updateConfig(config)
+  return { success: true }
+})
+
+ipcMain.handle('ai:check', () => {
+  return { available: aiService.isAvailable() }
+})
+
+ipcMain.handle('ai:analyzeRequest', async (_event, url: string, data?: string) => {
+  try {
+    const result = await aiService.analyzeRequest(url, data)
+    return { success: true, data: result }
+  } catch (err) {
+    const error = err as Error
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('ai:interpretLog', async (_event, logLine: string) => {
+  try {
+    const result = await aiService.interpretLog(logLine)
+    return { success: true, data: result }
+  } catch {
+    return { success: false, error: '解读失败' }
+  }
+})
+
+ipcMain.handle('ai:generateReport', async (_event, scanSummary: string) => {
+  try {
+    const result = await aiService.generateReport(scanSummary)
+    return { success: true, data: result }
+  } catch (err) {
+    const error = err as Error
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('ai:understandCommand', async (_event, command: string, context: string) => {
+  try {
+    const result = await aiService.understandCommand(command, context)
+    return { success: true, data: result }
+  } catch (err) {
+    const error = err as Error
+    return { success: false, error: error.message }
   }
 })
 
