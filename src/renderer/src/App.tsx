@@ -14,6 +14,7 @@ import { LogViewer } from './components/LogViewer'
 import { StatusBar } from './components/StatusBar'
 import { RequestEditor } from './components/RequestEditor'
 import { AiSettings } from './components/AiSettings'
+import { BatchScanner } from './components/BatchScanner'
 import { useScanManager } from './hooks/useScanManager'
 
 function App(): JSX.Element {
@@ -27,12 +28,13 @@ function App(): JSX.Element {
   const [aiInput, setAiInput] = useState('')
   const [showEditor, setShowEditor] = useState(false)
   const [showAiSettings, setShowAiSettings] = useState(false)
+  const [showBatchScanner, setShowBatchScanner] = useState(false)
   const [aiAvailable, setAiAvailable] = useState(false)
 
   const {
     tasks, activeTask, activeIndex,
     setActiveIndex, createTask, startScan, stopScan
-  } = useScanManager()
+  } = useScanManager(aiAvailable)
 
   // ---- sqlmapapi 连接 & AI 检查 ----
   useEffect(() => {
@@ -236,6 +238,12 @@ function App(): JSX.Element {
             >
               📥 导入
             </button>
+            <button
+              onClick={() => setShowBatchScanner(true)}
+              className="px-3 py-1.5 text-sm border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer"
+            >
+              📋 批量
+            </button>
             <select
               onChange={(e) => e.target.value && applyTemplate(e.target.value)}
               defaultValue=""
@@ -371,6 +379,22 @@ function App(): JSX.Element {
             setAiAvailable(check.available)
             setShowAiSettings(false)
           }}
+        />
+      )}
+
+      {/* 批量扫描弹窗 */}
+      {showBatchScanner && (
+        <BatchScanner
+          onStartBatch={async (urls) => {
+            setAiMessage(`📋 开始批量扫描 ${urls.length} 个目标...`)
+            for (let i = 0; i < urls.length; i++) {
+              const taskId = await createTask(urls[i])
+              if (taskId) {
+                setTimeout(() => startScan(taskId, { ...options, url: urls[i] }), i * 1000)
+              }
+            }
+          }}
+          onClose={() => setShowBatchScanner(false)}
         />
       )}
     </div>

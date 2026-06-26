@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef } from 'react'
 import type { Task, LogEntry, ScanOptions, TaskStatus } from '../types'
 
-export function useScanManager() {
+export function useScanManager(aiEnabled = false) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const pollingRef = useRef<Map<string, boolean>>(new Map())
+  const interpretedRef = useRef<Set<string>>(new Set())
 
   const now = (): string =>
     new Date().toLocaleTimeString('zh-CN', { hour12: false })
@@ -21,6 +22,28 @@ export function useScanManager() {
       return updated
     })
   }, [])
+
+  /** AI 解读日志（带缓存，避免重复调） */
+  const interpretIfNeeded = useCallback(async (taskId: string, message: string): Promise<string | undefined> => {
+    if (!aiEnabled) return undefined
+    // 只解读关键日志
+    const keyMsgs = ['identified', 'injection', '注入', 'SUCCESS', '参数', 'table', 'database', 'column', 'dump', '盲注', '报错']
+    const isKey = keyMsgs.some((k) => message.toLowerCase().includes(k))
+    if (!isKey) return undefined
+
+    // 去重
+    const cacheKey = `${taskId}:${message.slice(0, 50)}`
+    if (interpretedRef.current.has(cacheKey)) return undefined
+    interpretedRef.current.add(cacheKey)
+
+    try {
+      const result = await window.sqlens.interpretLog(message)
+      if (result.success && result.data) return result.data
+    } catch {
+      // AI 解读失败不阻塞流程
+    }
+    return undefined
+  }, [aiEnabled])
 
   const createTask = useCallback(async (url: string): Promise<string | null> => {
     const result = await window.sqlens.createTask()
@@ -42,7 +65,6 @@ export function useScanManager() {
   const startScan = useCallback(async (taskId: string, options: ScanOptions) => {
     addLog(taskId, 'INFO', '正在配置扫描参数...')
 
-    // 构建 sqlmap 参数
     const sqlmapOptions: Record<string, unknown> = { url: options.url }
     if (options.method === 'POST' && options.data) sqlmapOptions.data = options.data
     if (options.cookie) sqlmapOptions.cookie = options.cookie
@@ -62,7 +84,6 @@ export function useScanManager() {
     if (options.stop > 0) sqlmapOptions.stop = options.stop
     if (options.optimize) sqlmapOptions.optimize = true
 
-    // 发送参数
     const setResult = await window.sqlens.setOption(taskId, sqlmapOptions)
     if (!setResult.success) {
       addLog(taskId, 'ERROR', '设置参数失败')
@@ -70,7 +91,6 @@ export function useScanManager() {
     }
     addLog(taskId, 'SUCCESS', '参数已配置')
 
-    // 启动
     const startResult = await window.sqlens.startScan(taskId)
     if (!startResult.success) {
       addLog(taskId, 'ERROR', '启动扫描失败')
@@ -85,7 +105,6 @@ export function useScanManager() {
     })
     addLog(taskId, 'SUCCESS', '扫描已启动')
 
-    // 开始轮询
     pollLogs(taskId)
   }, [addLog])
 
@@ -102,34 +121,50 @@ export function useScanManager() {
       ])
 
       if (logResult?.success && logResult.log.length > 0) {
-        setTasks((prev) => {
-          const idx = prev.findIndex((t) => t.id === taskId)
-          if (idx === -1) return prev
-          const current = prev[idx]
-          const existing = new Set(current.logs.map((l) => l.message))
+        for (const line of logResult.log) {
+          setTasks((prev) => {
+            const idx = prev.findIndex((t) => t.id === taskId)
+            if (idx === -1) return prev
+            const current = prev[idx]
+            if (current.logs.some((l) => l.message === line)) return prev
 
-          const newLogs = logResult.log
-            .filter((line: string) => !existing.has(line))
-            .map((line: string) => {
-              const level: LogEntry['level'] =
-                line.includes('[SUCCESS') || line.toLowerCase().includes('identified') ? 'SUCCESS' :
-                line.includes('[WARNING') ? 'WARN' :
-                line.includes('[ERROR') ? 'ERROR' : 'INFO'
-              return {
-                time: now(),
-                level,
-                message: line.replace(/^\[.*?\]\s*/, '').trim()
+            const level: LogEntry['level'] =
+              line.includes('[SUCCESS') || line.toLowerCase().includes('identified') ? 'SUCCESS' :
+              line.includes('[WARNING') ? 'WARN' :
+              line.includes('[ERROR') ? 'ERROR' : 'INFO'
+
+            const clean = line.replace(/^\[.*?\]\s*/, '').trim()
+            const updated = [...prev]
+            updated[idx] = {
+              ...current,
+              logs: [...current.logs, { time: now(), level, message: clean }]
+            }
+            return updated
+          })
+
+          // AI 异步解读（不阻塞日志展示）
+          if (aiEnabled) {
+            const cleanLine = line.replace(/^\[.*?\]\s*/, '').trim()
+            interpretIfNeeded(taskId, cleanLine).then((aiText) => {
+              if (aiText) {
+                setTasks((prev) => {
+                  const idx = prev.findIndex((t) => t.id === taskId)
+                  if (idx === -1) return prev
+                  const updated = [...prev]
+                  const logs = [...updated[idx].logs]
+                  const lastLog = logs[logs.length - 1]
+                  if (lastLog && lastLog.message === cleanLine && !lastLog.ai) {
+                    logs[logs.length - 1] = { ...lastLog, ai: aiText }
+                  }
+                  updated[idx] = { ...updated[idx], logs }
+                  return updated
+                })
               }
             })
-
-          if (newLogs.length === 0) return prev
-          const updated = [...prev]
-          updated[idx] = { ...current, logs: [...current.logs, ...newLogs] }
-          return updated
-        })
+          }
+        }
       }
 
-      // 检查结束
       if (statusResult?.success) {
         const finished = ['finished', 'stopped', 'error'].includes(statusResult.status)
         if (finished) {
@@ -152,7 +187,7 @@ export function useScanManager() {
         }
       }
     }
-  }, [addLog])
+  }, [addLog, aiEnabled, interpretIfNeeded])
 
   const stopScan = useCallback(async (taskId: string) => {
     pollingRef.current.set(taskId, false)
