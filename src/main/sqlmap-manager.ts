@@ -28,11 +28,11 @@ export class SqlmapApiManager {
   constructor(config: Partial<SqlmapApiConfig> = {}) {
     this.config = { ...defaultConfig, ...config }
 
-    // 内置 sqlmap 路径
+    // 内置 sqlmap 路径（优先 pip 包，其次源码）
     if (!this.config.sqlmapPath) {
       const resourcePath = is.dev
-        ? join(app.getAppPath(), 'resources', 'sqlmap')
-        : join(process.resourcesPath, 'sqlmap')
+        ? join(app.getAppPath(), 'resources', 'sqlmap_pkg', 'sqlmap')
+        : join(process.resourcesPath, 'sqlmap_pkg', 'sqlmap')
       this.config.sqlmapPath = resourcePath
     }
   }
@@ -69,6 +69,13 @@ export class SqlmapApiManager {
     // 尝试自动启动
     try {
       const sqlmapApiScript = join(this.config.sqlmapPath, 'sqlmapapi.py')
+
+      // 检查 sqlmap 是否可用
+      const fs = require('fs')
+      if (!fs.existsSync(sqlmapApiScript)) {
+        return { success: false, message: `未找到 sqlmapapi.py (已查找: ${sqlmapApiScript})` }
+      }
+
       this.process = spawn(this.config.pythonPath, [sqlmapApiScript, '-s', '-H', this.config.host, '-p', String(this.config.port)], {
         cwd: this.config.sqlmapPath,
         stdio: ['pipe', 'pipe', 'pipe']

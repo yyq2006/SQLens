@@ -4,19 +4,23 @@
 
 set -e
 
-SQLMAP_DIR="$(cd "$(dirname "$0")/../resources" && pwd)/sqlmap"
+RESOURCES_DIR="$(cd "$(dirname "$0")/../resources" && pwd)"
+SQLMAP_DIR="$RESOURCES_DIR/sqlmap_pkg"
 
-echo "📦 正在下载 sqlmap..."
-if [ -d "$SQLMAP_DIR" ]; then
-  echo "  → sqlmap 已存在，拉取最新更新..."
-  cd "$SQLMAP_DIR"
-  git pull
+echo "📦 正在下载 sqlmap (v1.8.8)..."
+echo ""
+
+# 使用清华 PyPI 镜像
+MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple"
+
+if [ -d "$SQLMAP_DIR" ] && [ -f "$SQLMAP_DIR/sqlmap/sqlmapapi.py" ]; then
+    echo "  → sqlmap 已存在，跳过下载"
 else
-  echo "  → 克隆 sqlmap 到 $SQLMAP_DIR"
-  git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git "$SQLMAP_DIR"
+    echo "  → 通过 pip 安装 sqlmap v1.8.8..."
+    pip install "sqlmap==1.8.8" -i "$MIRROR" --target "$SQLMAP_DIR" --quiet
 fi
 
 echo ""
 echo "✅ sqlmap 就绪！"
-echo "   路径: $SQLMAP_DIR"
-echo "   版本: $(cd "$SQLMAP_DIR" && python sqlmap.py --version 2>/dev/null | head -1 || echo 'unknown')"
+echo "   路径: $SQLMAP_DIR/sqlmap"
+python "$SQLMAP_DIR/sqlmap/sqlmapapi.py" --version 2>/dev/null || python -c "exec(open('$SQLMAP_DIR/sqlmap/lib/core/common.py').read().split(chr(10))[0]); print('   版本: 1.8.8')"
