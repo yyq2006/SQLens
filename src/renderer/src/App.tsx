@@ -18,7 +18,9 @@ import { BatchScanner } from './components/BatchScanner'
 import { ChatPanel } from './components/ChatPanel'
 import { DatabaseBrowser } from './components/DatabaseBrowser'
 import { ReportViewer } from './components/ReportViewer'
+import { HistoryPanel } from './components/HistoryPanel'
 import { useScanManager } from './hooks/useScanManager'
+import { useTheme } from './hooks/useTheme'
 
 function App(): JSX.Element {
   // ---- 状态 ----
@@ -30,7 +32,9 @@ function App(): JSX.Element {
   const [showEditor, setShowEditor] = useState(false)
   const [showAiSettings, setShowAiSettings] = useState(false)
   const [showBatchScanner, setShowBatchScanner] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   const [aiAvailable, setAiAvailable] = useState(false)
+  const { isDark, toggle: toggleTheme } = useTheme()
 
   const {
     tasks, activeTask, activeIndex,
@@ -60,7 +64,18 @@ function App(): JSX.Element {
       clearInterval(interval)
       window.sqlens.removeSqlmapStatusChange()
     }
-  }, [])
+	  }, [])
+
+  // ---- 键盘快捷键 ----
+  useEffect(() => {
+    const handler = (e: KeyboardEvent): void => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); toggleTheme() }
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); autoScan() }
+      if (e.key === 'Escape') { setShowEditor(false); setShowAiSettings(false); setShowBatchScanner(false); setShowHistory(false) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [autoScan, toggleTheme])
 
   // ---- 一键全自动（带 AI 分析） ----
   const autoScan = useCallback(async () => {
@@ -114,6 +129,7 @@ function App(): JSX.Element {
   const handleSidebarChange = (label: string) => {
     setActiveSidebar(label)
     if (label === '设置') setShowAiSettings(true)
+    if (label === '历史记录') setShowHistory(true)
   }
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none"
@@ -126,6 +142,15 @@ function App(): JSX.Element {
             SQLens
           </span>
           <span className="text-xs text-slate-600 ml-1">v1.0</span>
+        </div>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            className="text-slate-500 hover:text-slate-300 text-xs px-1.5 py-0.5 rounded cursor-pointer"
+            title={isDark ? '切换到亮色主题 (Ctrl+Shift+T)' : '切换到暗色主题 (Ctrl+Shift+T)'}
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
         </div>
       </header>
 
@@ -327,6 +352,14 @@ function App(): JSX.Element {
             }
           }}
           onClose={() => setShowBatchScanner(false)}
+        />
+      )}
+
+      {/* 历史记录弹窗 */}
+      {showHistory && (
+        <HistoryPanel
+          onSelect={(url) => setUrl(url)}
+          onClose={() => setShowHistory(false)}
         />
       )}
     </div>

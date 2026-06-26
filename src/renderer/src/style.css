@@ -1,16 +1,68 @@
 @import "tailwindcss";
 
-/* Fira Code + Fira Sans 字体已在 App.tsx 中通过 @fontsource 导入 */
-
+/* ====== CSS 变量（亮色/暗色） ====== */
 :root {
-  font-family: 'Fira Sans', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
+  /* 亮色主题 */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-primary: #0369a1;
+  --color-primary-hover: #0284c7;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-sidebar-bg: #ffffff;
+  --color-sidebar-hover: #f8fafc;
+  --color-sidebar-active: #eff6ff;
+  --color-panel-bg: #ffffff;
+  --color-panel-header: #f8fafc;
+  --color-input-bg: #ffffff;
+  --color-log-bg: #0f172a;
+  --color-log-text: #cbd5e1;
+  --color-header-bg: #0f172a;
+  --color-header-text: #ffffff;
+  --color-footer-bg: #0f172a;
+  --color-ai-bubble-bg: #eff6ff;
+  --color-ai-bubble-border: #3b82f6;
 }
+
+.dark {
+  /* 暗色主题 */
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-sidebar-bg: #1e293b;
+  --color-sidebar-hover: #334155;
+  --color-sidebar-active: #1e3a5f;
+  --color-panel-bg: #1e293b;
+  --color-panel-header: #334155;
+  --color-input-bg: #0f172a;
+  --color-log-bg: #020617;
+  --color-log-text: #94a3b8;
+  --color-header-bg: #020617;
+  --color-header-text: #e2e8f0;
+  --color-footer-bg: #020617;
+  --color-ai-bubble-bg: #1e3a5f;
+  --color-ai-bubble-border: #38bdf8;
+}
+
+/* Fira Code + Fira Sans 已在 App.tsx 导入 */
 
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Fira Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -26,12 +78,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #475569;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #64748b;
 }
 
 /* 可拖拽区域（标题栏） */
@@ -43,4 +95,10 @@ body {
 .draggable input,
 .draggable select {
   -webkit-app-region: no-drag;
+}
+
+/* 过渡动画 */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
