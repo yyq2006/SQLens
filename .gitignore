@@ -44,3 +44,4 @@ temp/
 # SQLite database (except schema)
 *.db
 *.db-journal
+resources/sqlmap_pkg/
