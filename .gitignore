@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+release/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Python (embedded)
+python/__pycache__/
+python/*.pyc
+python/*.pyo
+
+# Electron builder output
+*.dmg
+*.exe
+*.AppImage
+
+# Temp
+tmp/
+temp/
+
+# SQLite database (except schema)
+*.db
+*.db-journal
