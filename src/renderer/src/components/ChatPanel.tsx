@@ -94,12 +94,12 @@ export function ChatPanel({ aiAvailable, onAction }: Props): JSX.Element {
   }
 
   return (
-    <div className="h-44 border-t border-slate-200 bg-white flex flex-col shrink-0">
+    <div className="h-44 glass-strong dark:glass-dark flex flex-col shrink-0 border-t border-white/40 dark:border-white/5 rounded-none">
       {/* 标题栏 */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 shrink-0">
-        <span className="text-xs font-semibold text-slate-500">💬 AI 助手</span>
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/40 dark:border-white/5 shrink-0">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">💬 AI 助手</span>
         <div className="flex items-center gap-2">
-          <span className={`w-1.5 h-1.5 rounded-full ${aiAvailable ? 'bg-green-500' : 'bg-slate-400'}`} />
+          <span className={`status-dot ${aiAvailable ? 'online' : 'offline'}`} />
           <span className="text-[10px] text-slate-400">{aiAvailable ? '在线' : '离线'}</span>
         </div>
       </div>
@@ -109,10 +109,10 @@ export function ChatPanel({ aiAvailable, onAction }: Props): JSX.Element {
         {messages.map((msg, i) => (
           <div key={i} className={`flex gap-1.5 ${msg.role === 'user' ? '' : ''}`}>
             <span className="shrink-0 mt-0.5">{msg.role === 'user' ? '🙋' : '🤖'}</span>
-            <div className={`rounded px-2 py-1 ${
+            <div className={`rounded-lg px-2.5 py-1.5 ${
               msg.role === 'user'
-                ? 'bg-slate-50 text-slate-600'
-                : 'bg-blue-50 text-blue-800 border-l-2 border-blue-400'
+                ? 'user-bubble'
+                : 'ai-bubble'
             }`}>
               <span dangerouslySetInnerHTML={{ __html: renderMessage(msg.content) }} />
               <div className="text-[10px] text-slate-400 mt-0.5">{msg.timestamp}</div>
@@ -124,7 +124,7 @@ export function ChatPanel({ aiAvailable, onAction }: Props): JSX.Element {
         {streaming && streamContent && (
           <div className="flex gap-1.5">
             <span className="shrink-0 mt-0.5">🤖</span>
-            <div className="bg-blue-50 text-blue-800 rounded px-2 py-1 border-l-2 border-blue-400">
+            <div className="ai-bubble">
               <span dangerouslySetInnerHTML={{ __html: renderMessage(streamContent) }} />
               <span className="animate-pulse ml-0.5">▍</span>
             </div>
@@ -152,15 +152,15 @@ export function ChatPanel({ aiAvailable, onAction }: Props): JSX.Element {
           onKeyDown={(e) => e.key === 'Enter' && send()}
           placeholder={aiAvailable ? '输入指令，如: 扫描这个网站、停止、生成报告' : 'AI 未配置，请先在设置中填入 API Key'}
           disabled={!aiAvailable}
-          className="flex-1 text-xs border border-slate-200 rounded px-2 py-1.5 outline-none placeholder-slate-400 disabled:bg-slate-50 disabled:cursor-not-allowed"
+          className="flex-1 text-xs input-glass px-2.5 py-1.5 outline-none placeholder-slate-400 disabled:opacity-40 disabled:cursor-not-allowed dark:text-slate-200"
         />
         <button
           onClick={send}
           disabled={!input.trim() || streaming || !aiAvailable}
-          className={`px-3 py-1.5 text-xs rounded cursor-pointer ${
+          className={`px-3 py-1.5 text-xs rounded-lg cursor-pointer transition-all duration-200 ${
             input.trim() && !streaming && aiAvailable
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              ? 'btn-glass'
+              : 'bg-white/30 text-slate-400 cursor-not-allowed dark:bg-white/5'
           }`}
         >
           {streaming ? '...' : '发送'}

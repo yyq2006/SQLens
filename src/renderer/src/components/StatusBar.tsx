@@ -19,7 +19,7 @@ export function StatusBar({ sqlmapConnected, aiOnline, tasks }: Props): JSX.Elem
   }
 
   return (
-    <footer className="h-7 footer-gradient text-slate-400 flex items-center px-4 gap-3 text-xs shrink-0 border-t border-slate-800">
+    <footer className="h-7 footer-glass text-slate-400 flex items-center px-4 gap-3 text-xs shrink-0">
       <span className="flex items-center gap-1.5">
         {sqlmapConnected
           ? <Wifi className="w-3 h-3 text-green-400" />
@@ -31,7 +31,7 @@ export function StatusBar({ sqlmapConnected, aiOnline, tasks }: Props): JSX.Elem
         <Cpu className={`w-3 h-3 ${aiOnline ? 'text-green-400' : 'text-slate-600'}`} />
         <span>AI {aiOnline ? '在线' : '离线'}</span>
       </span>
-      <span className="ml-auto text-slate-600 text-[10px]">
+      <span className="ml-auto text-slate-500 text-[10px]">
         {tasks.length > 0 ? (
           <span className="flex items-center gap-2">
             {tasks.map((t, i) => (
@@ -41,7 +41,7 @@ export function StatusBar({ sqlmapConnected, aiOnline, tasks }: Props): JSX.Elem
             ))}
           </span>
         ) : (
-          <span className="text-slate-600">就绪 — 输入 URL 开始扫描</span>
+          <span className="text-slate-500">就绪 — 输入 URL 开始扫描</span>
         )}
       </span>
     </footer>

@@ -144,8 +144,8 @@ function App(): JSX.Element {
     return () => window.removeEventListener('keydown', handler)
   }, [autoScan, toggleTheme])
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none"
-         style={{ fontFamily: 'Fira Sans, system-ui, sans-serif' }}>
+      <div className="h-screen w-screen flex flex-col overflow-hidden select-none bg-ambient"
+           style={{ fontFamily: 'Fira Sans, system-ui, sans-serif' }}>
       {/* 标题栏 */}
       <header className="h-10 header-gradient text-white flex items-center px-4 draggable shrink-0">
         <div className="flex items-center gap-2.5">
@@ -175,14 +175,14 @@ function App(): JSX.Element {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* 侧边栏 */}
+        {/* 侧边栏 - 玻璃态 */}
         <Sidebar active={activeSidebar} onChange={handleSidebarChange} />
 
         {/* 主区域 */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          {/* 操作栏 - 现代风格 */}
-          <div className="h-14 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center px-4 gap-2.5 shrink-0">
-            <div className="flex-1 flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 input-field">
+          {/* 操作栏 - 玻璃液态 */}
+          <div className="h-14 glass-strong dark:glass-dark flex items-center px-4 gap-2.5 shrink-0 rounded-none border-x-0 border-t-0">
+            <div className="flex-1 flex items-center gap-2 input-glass px-3 py-1.5">
               <Link className="w-4 h-4 text-slate-400 shrink-0" />
               <input
                 type="text"
@@ -196,7 +196,7 @@ function App(): JSX.Element {
             <button
               onClick={autoScan}
               disabled={!url.trim() || !sqlmapConnected}
-              className={`btn-primary flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg cursor-pointer ${
+              className={`btn-glass flex items-center gap-1.5 px-4 py-2 text-sm font-medium cursor-pointer ${
                 !url.trim() || !sqlmapConnected ? 'opacity-50' : ''
               }`}
             >
@@ -206,22 +206,22 @@ function App(): JSX.Element {
             <button
               onClick={() => activeTask && stopScan(activeTask.id)}
               disabled={!activeTask || activeTask.status !== 'running'}
-              className={`btn-danger flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg cursor-pointer ${
-                activeTask?.status !== 'running' ? 'opacity-50' : ''
+              className={`btn-glass-danger flex items-center gap-1.5 px-3 py-2 text-sm cursor-pointer ${
+                activeTask?.status !== 'running' ? 'opacity-40' : ''
               }`}
             >
               <Square className="w-3.5 h-3.5" />
               <span>停止</span>
             </button>
-            <div className="flex items-center gap-1 border-l border-slate-200 dark:border-slate-700 pl-2.5">
+            <div className="flex items-center gap-1 border-l border-white/20 dark:border-white/5 pl-2.5">
               <button onClick={() => setShowEditor(true)}
-                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white/40 dark:hover:bg-white/5 transition-all cursor-pointer"
                 title="导入请求">
                 <Upload className="w-4 h-4" />
                 <span className="text-xs hidden lg:inline">导入</span>
               </button>
               <button onClick={() => setShowBatchScanner(true)}
-                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white/40 dark:hover:bg-white/5 transition-all cursor-pointer"
                 title="批量扫描">
                 <List className="w-4 h-4" />
                 <span className="text-xs hidden lg:inline">批量</span>
@@ -229,7 +229,7 @@ function App(): JSX.Element {
             </div>
             <div className="relative">
               <select onChange={(e) => e.target.value && applyTemplate(e.target.value)} defaultValue=""
-                className="appearance-none text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 pr-8 text-slate-600 dark:text-slate-400 dark:bg-slate-800 bg-white cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors outline-none">
+                className="appearance-none text-sm glass rounded-lg px-3 py-2 pr-8 text-slate-600 dark:text-slate-400 cursor-pointer hover:bg-white/50 dark:hover:bg-white/5 transition-all outline-none">
                 <option value="" disabled>选择模板</option>
                 {SCAN_TEMPLATES.map((t) => (<option key={t.name} value={t.name}>{t.label}</option>))}
               </select>
@@ -237,8 +237,8 @@ function App(): JSX.Element {
             </div>
           </div>
 
-          {/* 任务标签页 */}
-          <div className="h-8 bg-slate-100 border-b border-slate-200 flex items-center px-2 gap-0.5 shrink-0">
+          {/* 任务标签页 - 玻璃 */}
+          <div className="h-8 tab-glass flex items-center px-2 gap-0.5 shrink-0">
             {tasks.map((task, i) => (
               <div
                 key={task.id}

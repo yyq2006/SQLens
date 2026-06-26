@@ -35,41 +35,42 @@ const NAV_SECONDARY = [
 
 export function Sidebar({ active, onChange }: Props): JSX.Element {
   return (
-    <aside className="w-48 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col shrink-0">
-      <nav className="flex-1 p-2 space-y-0.5">
+    <aside className="w-48 sidebar-glass flex flex-col shrink-0">
+      <nav className="flex-1 p-2.5 space-y-0.5">
         {NAV_MAIN.map((item) => {
           const Icon = item.icon
+          const isActive = active === item.label
           return (
             <div
               key={item.label}
               onClick={() => onChange(item.label)}
-              className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-md cursor-pointer transition-all duration-150 group ${
-                active === item.label
-                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium border-l-[3px] border-blue-600 dark:border-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-800 dark:hover:text-slate-200 border-l-[3px] border-transparent'
+              className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg cursor-pointer transition-all duration-200 group ${
+                isActive
+                  ? 'bg-white/70 dark:bg-white/10 text-blue-700 dark:text-blue-300 font-medium shadow-sm border border-white/60 dark:border-white/5'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Icon className={`w-4 h-4 shrink-0 ${
-                active === item.label
+              <Icon className={`w-4 h-4 shrink-0 transition-all duration-200 ${
+                isActive
                   ? 'text-blue-600 dark:text-blue-400'
                   : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
               }`} />
               <span className="text-sm">{item.label}</span>
-              {active === item.label && (
-                <ChevronRight className="w-3 h-3 ml-auto text-blue-400 dark:text-blue-500" />
+              {isActive && (
+                <ChevronRight className="w-3 h-3 ml-auto text-blue-400/60 dark:text-blue-500/60" />
               )}
             </div>
           )
         })}
       </nav>
-      <div className="border-t border-slate-200 dark:border-slate-700 p-2 space-y-0.5">
+      <div className="border-t border-white/40 dark:border-white/5 p-2.5 space-y-0.5">
         {NAV_SECONDARY.map((item) => {
           const Icon = item.icon
           return (
             <div
               key={item.label}
               onClick={() => onChange(item.label)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-md cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-150 group"
+              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg cursor-pointer text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 group"
             >
               <Icon className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-500 dark:group-hover:text-slate-300" />
               <span>{item.label}</span>
