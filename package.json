@@ -18,7 +18,13 @@
     "type": "git",
     "url": "git+https://github.com/yyq2006/SQLens.git"
   },
-  "keywords": ["sqlmap", "sql-injection", "security", "electron", "desktop"],
+  "keywords": [
+    "sqlmap",
+    "sql-injection",
+    "security",
+    "electron",
+    "desktop"
+  ],
   "author": "yyq2006",
   "license": "GPL-3.0",
   "type": "commonjs",
@@ -31,7 +37,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
-    "electron": "^42.5.0",
+    "electron": "^33.4.11",
     "electron-builder": "^25.1.8",
     "electron-updater": "^6.6.1",
     "electron-vite": "^5.0.0",
