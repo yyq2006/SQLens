@@ -15,6 +15,7 @@ import { StatusBar } from './components/StatusBar'
 import { RequestEditor } from './components/RequestEditor'
 import { AiSettings } from './components/AiSettings'
 import { BatchScanner } from './components/BatchScanner'
+import { ChatPanel } from './components/ChatPanel'
 import { useScanManager } from './hooks/useScanManager'
 
 function App(): JSX.Element {
@@ -24,8 +25,6 @@ function App(): JSX.Element {
   const [sqlmapConnected, setSqlmapConnected] = useState(false)
   const [activeSidebar, setActiveSidebar] = useState('目标')
   const [logView, setLogView] = useState<'raw' | '精简'>('精简')
-  const [aiMessage, setAiMessage] = useState('已就绪！输入 URL 或粘贴数据包，点击「一键全自动」开始扫描')
-  const [aiInput, setAiInput] = useState('')
   const [showEditor, setShowEditor] = useState(false)
   const [showAiSettings, setShowAiSettings] = useState(false)
   const [showBatchScanner, setShowBatchScanner] = useState(false)
@@ -67,11 +66,9 @@ function App(): JSX.Element {
 
     // AI 分析请求
     if (aiAvailable) {
-      setAiMessage('🤖 AI 正在分析请求...')
       const aiResult = await window.sqlens.analyzeRequest(url)
       if (aiResult.success && aiResult.data) {
         const { data } = aiResult
-        // 应用 AI 推荐参数
         setOptions((prev) => ({
           ...prev,
           level: data.recommendLevel,
@@ -80,21 +77,14 @@ function App(): JSX.Element {
             ['B', 'E', 'U', 'S', 'T'].includes(t)),
           tamper: data.hasWaf ? data.recommendTamper : prev.tamper
         }))
-        setAiMessage(`🤖 AI 分析: ${data.note}`)
-      } else {
-        setAiMessage(`⚠️ AI 分析暂不可用: ${aiResult.error}，使用默认配置`)
       }
     }
 
     // 创建并启动任务
     const taskId = await createTask(url)
-    if (!taskId) {
-      setAiMessage('❌ 创建任务失败')
-      return
-    }
+    if (!taskId) return
 
     setTimeout(() => startScan(taskId, { ...options, url }), 300)
-    setAiMessage(aiAvailable ? '✅ AI 已配置参数，扫描进行中...' : '✅ 扫描进行中...')
   }, [url, options, sqlmapConnected, aiAvailable, createTask, startScan])
 
   // ---- 模板切换 ----
@@ -102,60 +92,8 @@ function App(): JSX.Element {
     const tmpl = SCAN_TEMPLATES.find((t) => t.name === name)
     if (tmpl) {
       setOptions((prev) => ({ ...prev, ...tmpl.options }))
-      setAiMessage(`已应用模板: ${tmpl.label}`)
     }
   }, [])
-
-  // ---- AI 对话发送 ----
-  const sendAiMessage = useCallback(async () => {
-    if (!aiInput.trim()) return
-    const msg = aiInput.trim()
-    setAiInput('')
-
-    // 先显示用户消息
-    setAiMessage(`🙋 ${msg}`)
-
-    if (aiAvailable) {
-      const context = `当前URL: ${url}, 活跃任务: ${activeTask?.status || '无'}`
-      const result = await window.sqlens.understandCommand(msg, context)
-      if (result.success && result.data) {
-        const { data } = result
-        setAiMessage(`🤖 ${data.reply}`)
-
-        // 根据意图执行操作
-        switch (data.action) {
-          case 'scan':
-            if (data.params.url) setUrl(data.params.url)
-            setTimeout(() => autoScan(), 500)
-            break
-          case 'stop':
-            if (activeTask) stopScan(activeTask.id)
-            break
-          case 'help':
-            break
-          default:
-            break
-        }
-      } else {
-        setAiMessage(`❌ ${result.error || '无法理解指令'}`)
-      }
-    } else {
-      // 离线简单匹配
-      if (msg.includes('扫') || msg.includes('scan')) {
-        const urlMatch = msg.match(/https?:\/\/[^\s]+/)
-        if (urlMatch) { setUrl(urlMatch[0]); setTimeout(() => autoScan(), 100) }
-        else if (url) autoScan()
-        else setAiMessage('🤖 请先输入目标 URL')
-      } else if (msg.includes('停')) {
-        if (activeTask) stopScan(activeTask.id)
-        setAiMessage('⏹ 已停止')
-      } else if (msg.includes('模板')) {
-        setAiMessage('可用模板: 快速检测 / 深度枚举 / WAF绕过 / 登录扫描')
-      } else {
-        setAiMessage('🤖 试试说: "扫描这个网站"、"停止"、"应用模板"')
-      }
-    }
-  }, [aiInput, url, aiAvailable, autoScan, activeTask, stopScan])
 
   // ---- 根据侧边栏切换 ----
   const sidebarToParam = (label: string): string => {
@@ -317,39 +255,28 @@ function App(): JSX.Element {
           </div>
 
           {/* AI 聊天框 */}
-          <div className="h-36 border-t border-slate-200 bg-white flex flex-col shrink-0">
-            <div className="flex items-center justify-between px-3 py-1 border-b border-slate-100">
-              <span className="text-xs font-semibold text-slate-500">💬 对话</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1 text-xs">
-              <div className="flex gap-2">
-                <span className="shrink-0">🙋</span>
-                <div className="text-slate-600 bg-slate-50 rounded px-2 py-1">扫描这个网站有没有注入</div>
-              </div>
-              <div className="flex gap-2">
-                <span className="shrink-0">🤖</span>
-                <div className={`rounded px-2 py-1 border-l-2 ${sqlmapConnected ? 'text-blue-700 bg-blue-50 border-blue-500' : 'text-orange-700 bg-orange-50 border-orange-500'}`}>
-                  {sqlmapConnected ? aiMessage : '正在连接 sqlmapapi 服务...'}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 border-t border-slate-100">
-              <input
-                type="text"
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendAiMessage()}
-                placeholder="输入指令，如: 扫描这个网站"
-                className="flex-1 text-xs border border-slate-200 rounded px-2 py-1.5 outline-none placeholder-slate-400"
-              />
-              <button
-                onClick={sendAiMessage}
-                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors cursor-pointer"
-              >
-                发送
-              </button>
-            </div>
-          </div>
+          <ChatPanel
+            aiAvailable={aiAvailable}
+            onAction={(action, params) => {
+              switch (action) {
+                case 'scan':
+                  if (params.url) setUrl(params.url)
+                  setTimeout(() => autoScan(), 500)
+                  break
+                case 'stop':
+                  if (activeTask) stopScan(activeTask.id)
+                  break
+                case 'template':
+                  if (params.name) {
+                    const tmpl = SCAN_TEMPLATES.find((t) => t.name === params.name)
+                    if (tmpl) setOptions((prev) => ({ ...prev, ...tmpl.options }))
+                  }
+                  break
+                case 'report':
+                  break
+              }
+            }}
+          />
         </main>
       </div>
 
@@ -386,7 +313,6 @@ function App(): JSX.Element {
       {showBatchScanner && (
         <BatchScanner
           onStartBatch={async (urls) => {
-            setAiMessage(`📋 开始批量扫描 ${urls.length} 个目标...`)
             for (let i = 0; i < urls.length; i++) {
               const taskId = await createTask(urls[i])
               if (taskId) {

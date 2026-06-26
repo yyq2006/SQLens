@@ -32,7 +32,25 @@ const api = {
   interpretLog: (logLine: string) => ipcRenderer.invoke('ai:interpretLog', logLine),
   generateReport: (scanSummary: string) => ipcRenderer.invoke('ai:generateReport', scanSummary),
   understandCommand: (command: string, context: string) =>
-    ipcRenderer.invoke('ai:understandCommand', command, context)
+    ipcRenderer.invoke('ai:understandCommand', command, context),
+
+  // AI 流式聊天
+  chat: (messages: { role: string; content: string }[]) =>
+    ipcRenderer.invoke('ai:chat', messages),
+  onChatToken: (callback: (token: string) => void) => {
+    ipcRenderer.on('ai:chatToken', (_event, token) => callback(token))
+  },
+  onChatDone: (callback: (full: string) => void) => {
+    ipcRenderer.on('ai:chatDone', (_event, full) => callback(full))
+  },
+  onChatError: (callback: (error: string) => void) => {
+    ipcRenderer.on('ai:chatError', (_event, error) => callback(error))
+  },
+  removeChatListeners: () => {
+    ipcRenderer.removeAllListeners('ai:chatToken')
+    ipcRenderer.removeAllListeners('ai:chatDone')
+    ipcRenderer.removeAllListeners('ai:chatError')
+  }
 }
 
 contextBridge.exposeInMainWorld('sqlens', api)

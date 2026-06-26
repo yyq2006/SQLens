@@ -66,7 +66,7 @@ export class AiService {
     return this.config.enabled && !!this.config.apiKey
   }
 
-  /** 调用 AI API */
+  /** 调用 AI API（支持流式） */
   private async callApi(systemPrompt: string, userMessage: string): Promise<string> {
     if (!this.isAvailable()) {
       throw new Error('AI 未配置，请先在设置中填入 API Key')
@@ -97,6 +97,110 @@ export class AiService {
 
     const data = await res.json()
     return data.choices?.[0]?.message?.content || ''
+  }
+
+  /** 流式聊天 - 通过回调逐 token 推送 */
+  async chatStream(
+    messages: { role: string; content: string }[],
+    onToken: (token: string) => void,
+    onDone: (full: string) => void,
+    onError: (err: string) => void
+  ): Promise<void> {
+    if (!this.isAvailable()) {
+      onError('AI 未配置，请先在设置中填入 API Key')
+      return
+    }
+
+    const SQLENS_SYSTEM_PROMPT = `你是 SQLens，一个 SQL 注入分析工具的 AI 助手。你专门帮助安全研究人员和开发者检测和修复 SQL 注入漏洞。
+
+## 你的能力
+1. 分析 HTTP 请求中的潜在 SQL 注入点
+2. 推荐 sqlmap 扫描参数（level/risk/tamper/technique）
+3. 解读扫描日志，用大白话告诉用户当前进度
+4. 分析扫描结果，指出敏感数据泄露风险
+5. 生成修复建议代码（Java/PHP/Python/Go 等）
+
+## 回复风格
+- 简洁明了，用中文回答
+- 对于复杂内容，用 markdown 分点列出
+- 代码用 \`\`\` 代码块包裹
+- 不知道就说不知道，不要编造
+
+## 你可以执行的命令
+当用户要求执行操作时，在回复末尾加上操作标记:
+[ACTION:scan url=目标URL]  → 启动扫描
+[ACTION:stop]              → 停止扫描
+[ACTION:template name=模板名] → 应用模板 (快速检测/深度枚举/WAF绕过)
+[ACTION:export table=表名 format=格式] → 导出数据
+[ACTION:report]            → 生成报告`
+
+    try {
+      const res = await fetch(`${this.config.baseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          messages: [
+            { role: 'system', content: SQLENS_SYSTEM_PROMPT },
+            ...messages
+          ],
+          temperature: 0.7,
+          max_tokens: 4000,
+          stream: true
+        }),
+        signal: AbortSignal.timeout(60000)
+      })
+
+      if (!res.ok) {
+        const err = await res.text().catch(() => '')
+        onError(`AI API 错误 (${res.status})`)
+        return
+      }
+
+      const reader = res.body?.getReader()
+      if (!reader) {
+        onError('无法读取 AI 响应')
+        return
+      }
+
+      const decoder = new TextDecoder()
+      let full = ''
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          const trimmed = line.trim()
+          if (!trimmed || !trimmed.startsWith('data: ')) continue
+          const data = trimmed.slice(6).trim()
+          if (data === '[DONE]') continue
+          try {
+            const parsed = JSON.parse(data)
+            const token = parsed.choices?.[0]?.delta?.content || ''
+            if (token) {
+              full += token
+              onToken(token)
+            }
+          } catch {
+            // skip malformed JSON lines
+          }
+        }
+      }
+
+      onDone(full)
+    } catch (err) {
+      const error = err as Error
+      onError(`AI 请求失败: ${error.message}`)
+    }
   }
 
   /** 分析请求，推荐扫描参数 */

@@ -49,6 +49,13 @@ interface Api {
   interpretLog: (logLine: string) => Promise<{ success: boolean; data?: string; error?: string }>
   generateReport: (scanSummary: string) => Promise<{ success: boolean; data?: AiReportResult; error?: string }>
   understandCommand: (command: string, context: string) => Promise<{ success: boolean; data?: AiCommandResult; error?: string }>
+
+  // AI 流式聊天
+  chat: (messages: { role: string; content: string }[]) => Promise<{ success: boolean; error?: string }>
+  onChatToken: (callback: (token: string) => void) => void
+  onChatDone: (callback: (full: string) => void) => void
+  onChatError: (callback: (error: string) => void) => void
+  removeChatListeners: () => void
 }
 
 declare global {

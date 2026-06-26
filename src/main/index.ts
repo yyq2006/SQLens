@@ -198,6 +198,32 @@ ipcMain.handle('ai:understandCommand', async (_event, command: string, context: 
   }
 })
 
+// AI 流式聊天
+ipcMain.handle('ai:chat', async (event, messages: { role: string; content: string }[]) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win) return { success: false, error: '窗口已关闭' }
+
+  await aiService.chatStream(
+    messages,
+    (token) => {
+      if (!win.isDestroyed()) {
+        win.webContents.send('ai:chatToken', token)
+      }
+    },
+    (full) => {
+      if (!win.isDestroyed()) {
+        win.webContents.send('ai:chatDone', full)
+      }
+    },
+    (err) => {
+      if (!win.isDestroyed()) {
+        win.webContents.send('ai:chatError', err)
+      }
+    }
+  )
+  return { success: true }
+})
+
 // ====== App Lifecycle ======
 
 app.whenReady().then(async () => {
