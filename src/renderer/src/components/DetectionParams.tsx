@@ -33,7 +33,7 @@ export function DetectionParams({ options, onChange }: Props): JSX.Element {
         <span className="text-xs text-slate-500 w-20 shrink-0">相似度</span>
         <input
           type="range" min="0.5" max="1" step="0.02"
-          value={0.98}
+          defaultValue={0.98}
           className="flex-1 accent-blue-600"
         />
         <span className="text-[11px] text-slate-500 w-8 text-right">0.98</span>

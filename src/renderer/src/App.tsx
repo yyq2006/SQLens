@@ -130,6 +130,11 @@ function App(): JSX.Element {
 
   const handleSidebarChange = (label: string) => {
     setActiveSidebar(label)
+    // 滚动到对应参数区
+    const paramId = sidebarToParam(label)
+    setTimeout(() => {
+      document.getElementById(paramId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
     if (label === '设置') setShowAiSettings(true)
     if (label === '历史记录') setShowHistory(true)
   }
@@ -148,28 +153,16 @@ function App(): JSX.Element {
       <div className="h-screen w-screen flex flex-col overflow-hidden select-none bg-ambient"
            style={{ fontFamily: 'Fira Sans, system-ui, sans-serif' }}>
       {/* 标题栏 */}
-      <header className="h-10 header-gradient text-white flex items-center px-4 draggable shrink-0">
+      <header className="h-10 bg-slate-900 dark:bg-slate-950 text-white flex items-center px-4 draggable shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-sm font-bold tracking-wide" style={{ fontFamily: 'Fira Code' }}>
-            SQLens
-          </span>
-          <span className="text-[10px] text-slate-500 font-mono">v1.0</span>
+          <Shield className="w-4 h-4 text-cyan-400" />
+          <span className="text-sm font-bold" style={{ fontFamily: 'Fira Code' }}>SQLens</span>
+          <span className="text-[10px] text-slate-500">v1.0</span>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 bg-slate-800/50 rounded-md px-2 py-1">
-            <kbd className="text-slate-500 bg-slate-900 px-1 rounded text-[9px] font-mono">⌘</kbd>
-            <span>+</span>
-            <kbd className="text-slate-500 bg-slate-900 px-1 rounded text-[9px] font-mono">⏎</kbd>
-            <span className="text-slate-500 ml-0.5">启动扫描</span>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-            title={isDark ? '切换到亮色主题 (Ctrl+Shift+T)' : '切换到暗色主题 (Ctrl+Shift+T)'}
-          >
+          <button onClick={toggleTheme}
+            className="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+            title={isDark ? '亮色主题' : '暗色主题'}>
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
@@ -262,13 +255,13 @@ function App(): JSX.Element {
           {/* 中间内容 */}
           <div className="flex-1 flex overflow-hidden">
             {/* 参数面板 */}
-            <div className="w-1/2 border-r border-slate-200 overflow-y-auto p-3 space-y-2 bg-white">
-              <RequestParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
-              <InjectionParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
-              <DetectionParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
-              <EnumParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
-              <OptimizeParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
-              <CustomParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} />
+            <div className="w-1/2 border-r border-slate-200 overflow-y-auto p-3 space-y-2 bg-white dark:bg-slate-800 dark:border-slate-700">
+              <div id="目标与请求"><RequestParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
+              <div id="注入参数"><InjectionParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
+              <div id="检测与绕过"><DetectionParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
+              <div id="枚举选项"><EnumParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
+              <div id="优化"><OptimizeParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
+              <div id="自定义参数"><CustomParams options={options} onChange={(u) => setOptions((p) => ({ ...p, ...u }))} /></div>
             </div>
 
             {/* 日志/结果区 */}
