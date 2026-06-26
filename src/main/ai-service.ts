@@ -170,33 +170,47 @@ export class AiService {
       let full = ''
       let buffer = ''
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
 
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || ''
 
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed || !trimmed.startsWith('data: ')) continue
-          const data = trimmed.slice(6).trim()
-          if (data === '[DONE]') continue
-          try {
-            const parsed = JSON.parse(data)
-            const token = parsed.choices?.[0]?.delta?.content || ''
-            if (token) {
-              full += token
-              onToken(token)
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (!trimmed || !trimmed.startsWith('data: ')) continue
+            const data = trimmed.slice(6).trim()
+            if (data === '[DONE]') continue
+            try {
+              const parsed = JSON.parse(data)
+              // 检查 API 返回的错误
+              if (parsed.error) {
+                const errMsg = parsed.error.message || JSON.stringify(parsed.error)
+                onError(`AI 错误: ${errMsg}`)
+                return
+              }
+              const token = parsed.choices?.[0]?.delta?.content || ''
+              if (token) {
+                full += token
+                onToken(token)
+              }
+            } catch {
+              // non-JSON lines
             }
-          } catch {
-            // skip malformed JSON lines
           }
         }
-      }
 
-      onDone(full)
+        if (full) {
+          onDone(full)
+        } else {
+          onError('AI 返回为空，请检查 API Key 和模型名称是否正确')
+        }
+      } catch (err) {
+        onError(`AI 流读取失败: ${err}`)
+      }
     } catch (err) {
       const error = err as Error
       onError(`AI 请求失败: ${error.message}`)

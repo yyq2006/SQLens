@@ -1,0 +1,75 @@
+[36mvite v6.4.3 [32mbuilding SSR bundle for development...[36m[39m
+transforming...
+[32m✓[39m 3 modules transformed.
+rendering chunks...
+[2mout/main/[22m[36mindex.js  [39m[1m[2m18.81 kB[22m[1m[22m
+[32m✓ built in 186ms[39m
+[32m
+electron main process built successfully[39m
+[90m
+-----
+[39m
+[36mvite v6.4.3 [32mbuilding SSR bundle for development...[36m[39m
+transforming...
+[32m✓[39m 1 modules transformed.
+rendering chunks...
+[2mout/preload/[22m[36mindex.js  [39m[1m[2m2.43 kB[22m[1m[22m
+[32m✓ built in 26ms[39m
+[32m
+electron preload scripts built successfully[39m
+[90m
+-----
+[39m
+Port 5173 is in use, trying another one...
+[32mdev server running for the electron renderer process at:
+[39m
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5174[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[32m
+starting electron app...
+[39m
+
+[30168:0626/103753.445:ERROR:cache_util_win.cc(20)] Unable to move the cache: 拒绝访问。 (0x5)
+[30168:0626/103753.445:ERROR:cache_util_win.cc(20)] Unable to move the cache: 拒绝访问。 (0x5)
+[30168:0626/103753.448:ERROR:cache_util_win.cc(20)] Unable to move the cache: 拒绝访问。 (0x5)
+[30168:0626/103753.456:ERROR:disk_cache.cc(208)] Unable to create cache
+[30168:0626/103753.456:ERROR:gpu_disk_cache.cc(713)] Gpu Cache Creation failed: -2
+[30168:0626/103753.457:ERROR:disk_cache.cc(208)] Unable to create cache
+[30168:0626/103753.457:ERROR:gpu_disk_cache.cc(713)] Gpu Cache Creation failed: -2
+[30168:0626/103753.461:ERROR:disk_cache.cc(208)] Unable to create cache
+[30168:0626/103753.461:ERROR:gpu_disk_cache.cc(713)] Gpu Cache Creation failed: -2
+[sqlmapapi] [10:37:55] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+
+[sqlmapapi] [10:37:55] [INFO] Admin (secret) token: 7e473ae7bb4c3ed6739a76dedf45bc26
+[10:37:55] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-5ougn853'
+[10:37:55] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [10:37:55] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[30168:0626/103759.472:ERROR:CONSOLE(1)] "Unknown VE context: language-mismatch    at new He (devtools://devtools/bundled/ui/legacy/legacy.js:1:98356)
+    at devtools://devtools/bundled/ui/legacy/legacy.js:1:191793
+    at new oi (devtools://devtools/bundled/ui/legacy/legacy.js:1:192189)
+    at oi.instance (devtools://devtools/bundled/ui/legacy/legacy.js:1:192311)
+    at O.presentUI (devtools://devtools/bundled/panels/emulation/emulation.js:1:58454)
+    at #I (devtools://devtools/bundled/entrypoints/main/main.js:1:17314)
+    at #x (devtools://devtools/bundled/entrypoints/main/main.js:1:17109)", source: devtools://devtools/bundled/ui/visual_logging/visual_logging.js (1)
+[30168:0626/103759.889:ERROR:CONSOLE(1)] "Request Autofill.enable failed. {"code":-32601,"message":"'Autofill.enable' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[30168:0626/103759.889:ERROR:CONSOLE(1)] "Request Autofill.setAddresses failed. {"code":-32601,"message":"'Autofill.setAddresses' wasn't found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[sqlmapapi] [10:38:01] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[10:38:01] [INFO] Admin (secret) token: 2fcf9661a81e30b9c89a95a2106abcab
+
+[sqlmapapi] [10:38:01] [INFO] Running REST-JSON API server at '127.0.0.1:8775'..
+[10:38:01] [INFO] Admin (secret) token: 43e9d47cefcf7ba21641f3e91f9b4a50
+[10:38:01] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-xnif4am6'
+
+[sqlmapapi] [10:38:01] [DEBUG] IPC database: 'C:\Users\MR\AppData\Local\Temp\sqlmapipc-vy3evkjh'
+
+[sqlmapapi] [10:38:01] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [10:38:01] [DEBUG] REST-JSON API server connected to IPC database
+
+[sqlmapapi] [10:38:01] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[sqlmapapi] [10:38:01] [DEBUG] Using adapter 'wsgiref' to run bottle
+
+[SQLens] sqlmapapi 启动超时

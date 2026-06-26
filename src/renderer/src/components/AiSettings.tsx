@@ -52,13 +52,17 @@ export function AiSettings({ onClose, onSave }: Props): JSX.Element {
     const effectiveModel = getEffectiveModel()
     if (!effectiveModel) return
     if (selectedPreset === 'custom' && !customModel.trim()) return
-    if (!apiKey.trim() && !hasConfig) return
 
-    await window.sqlens.updateAiConfig({
-      apiKey: apiKey.trim() || undefined,
+    const config: { apiKey?: string; baseUrl?: string; model?: string } = {
       baseUrl,
       model: effectiveModel
-    })
+    }
+    // 只有用户输入了新 Key 才更新，否则保留已有 Key
+    if (apiKey.trim()) {
+      config.apiKey = apiKey.trim()
+    }
+
+    await window.sqlens.updateAiConfig(config)
     setApiKey('')
     onSave()
   }

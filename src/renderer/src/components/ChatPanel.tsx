@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { MessageCircle, X } from 'lucide-react'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -94,7 +95,7 @@ export function ChatPanel({ aiAvailable, onAction }: Props): JSX.Element {
   }
 
   return (
-    <div className="h-44 glass-strong dark:glass-dark flex flex-col shrink-0 border-t border-white/40 dark:border-white/5 rounded-none">
+    <div id="ai-chat-panel" className="h-full flex flex-col overflow-hidden">
       {/* 标题栏 */}
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/40 dark:border-white/5 shrink-0">
         <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">💬 AI 助手</span>

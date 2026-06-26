@@ -130,11 +130,12 @@ export class SqlmapApiManager {
   async ping(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/task/new`, {
-        method: 'POST',
+        method: 'GET',
         signal: AbortSignal.timeout(5000)
       })
       if (!response.ok) return false
-      return true
+      const data = await response.json()
+      return data.success === true
     } catch {
       return false
     }

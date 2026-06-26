@@ -70,7 +70,7 @@ sqlmapManager.onStatusChangeCallback((connected) => {
 // 扫描任务 (REST 代理)
 ipcMain.handle('scan:createTask', async () => {
   try {
-    const res = await fetch(`${sqlmapManager.baseUrl}/task/new`, { method: 'POST' })
+    const res = await fetch(`${sqlmapManager.baseUrl}/task/new`, { method: 'GET' })
     const data = await res.json()
     return { success: data.success, taskId: data.taskid }
   } catch (err) {
@@ -96,7 +96,11 @@ ipcMain.handle('scan:setOption', async (_event, taskId: string, options: Record<
 
 ipcMain.handle('scan:start', async (_event, taskId: string) => {
   try {
-    const res = await fetch(`${sqlmapManager.baseUrl}/scan/${taskId}/start`, { method: 'POST' })
+    const res = await fetch(`${sqlmapManager.baseUrl}/scan/${taskId}/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    })
     const data = await res.json()
     return { success: data.success, engineId: data.engineid }
   } catch (err) {
@@ -155,8 +159,13 @@ ipcMain.handle('ai:getConfig', () => {
   return aiService.getConfig()
 })
 
-ipcMain.handle('ai:updateConfig', (_event, config: { apiKey: string; baseUrl?: string; model?: string }) => {
-  aiService.updateConfig(config)
+ipcMain.handle('ai:updateConfig', (_event, config: { apiKey?: string; baseUrl?: string; model?: string }) => {
+  // 只传入非空 apiKey 时才更新，避免空字符串覆盖已有配置
+  const update: Record<string, unknown> = {}
+  if (config.apiKey && config.apiKey.trim()) update.apiKey = config.apiKey.trim()
+  if (config.baseUrl) update.baseUrl = config.baseUrl
+  if (config.model) update.model = config.model
+  aiService.updateConfig(update)
   return { success: true }
 })
 

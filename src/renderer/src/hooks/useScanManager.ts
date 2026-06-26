@@ -203,8 +203,26 @@ export function useScanManager(aiEnabled = false) {
 
   const activeTask = tasks[activeIndex]
 
+  /** 移除任务 */
+  const removeTask = useCallback((taskId: string) => {
+    setTasks((prev) => {
+      const idx = prev.findIndex((t) => t.id === taskId)
+      if (idx === -1) return prev
+      const updated = [...prev]
+      updated.splice(idx, 1)
+      return updated
+    })
+    // 如果关闭的是当前活跃任务，切换到前一个
+    setActiveIndex((prev) => {
+      if (tasks.length <= 1) return 0
+      const idx = tasks.findIndex((t) => t.id === taskId)
+      if (idx <= prev && prev > 0) return prev - 1
+      return prev >= tasks.length - 1 ? tasks.length - 2 : prev
+    })
+  }, [tasks.length])
+
   return {
     tasks, activeTask, activeIndex,
-    setActiveIndex, createTask, startScan, stopScan, addLog
+    setActiveIndex, createTask, startScan, stopScan, addLog, removeTask
   }
 }

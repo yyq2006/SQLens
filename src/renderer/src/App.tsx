@@ -11,7 +11,8 @@ import {
   Upload,
   List,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  MessageCircle
 } from 'lucide-react'
 import './style.css'
 import { type ScanOptions, DEFAULT_OPTIONS, SCAN_TEMPLATES } from './types'
@@ -46,12 +47,13 @@ function App(): JSX.Element {
   const [showAiSettings, setShowAiSettings] = useState(false)
   const [showBatchScanner, setShowBatchScanner] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showChat, setShowChat] = useState(false)
   const [aiAvailable, setAiAvailable] = useState(false)
   const { isDark, toggle: toggleTheme } = useTheme()
 
   const {
     tasks, activeTask, activeIndex,
-    setActiveIndex, createTask, startScan, stopScan
+    setActiveIndex, createTask, startScan, stopScan, removeTask
   } = useScanManager(aiAvailable)
 
   // ---- sqlmapapi 连接 & AI 检查 ----
@@ -233,7 +235,7 @@ function App(): JSX.Element {
               <div
                 key={task.id}
                 onClick={() => setActiveIndex(i)}
-                className={`flex items-center gap-1.5 px-3 h-full text-xs cursor-pointer border-r border-slate-200 transition-colors ${
+                className={`flex items-center gap-1.5 px-3 h-full text-xs cursor-pointer border-r border-slate-200 transition-colors group ${
                   i === activeIndex
                     ? 'bg-white text-blue-600 font-medium'
                     : 'text-slate-500 hover:bg-slate-50'
@@ -246,7 +248,14 @@ function App(): JSX.Element {
                   task.status === 'stopped' ? 'bg-yellow-500' :
                   'bg-slate-300'
                 }`} />
-                {task.name}
+                <span>{task.name}</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); removeTask(task.id) }}
+                  className="ml-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px] leading-none"
+                  title="关闭任务"
+                >
+                  ✕
+                </button>
               </div>
             ))}
             <div className="px-2 text-slate-400 text-xs cursor-pointer hover:text-slate-600">+</div>
@@ -291,33 +300,51 @@ function App(): JSX.Element {
                 )}
               </div>
             </div>
-          </div>
+	          </div>
 
-          {/* AI 聊天框 */}
-          <ChatPanel
-            aiAvailable={aiAvailable}
-            onAction={(action, params) => {
-              switch (action) {
-                case 'scan':
-                  if (params.url) setUrl(params.url)
-                  setTimeout(() => autoScan(), 500)
-                  break
-                case 'stop':
-                  if (activeTask) stopScan(activeTask.id)
-                  break
-                case 'template':
-                  if (params.name) {
-                    const tmpl = SCAN_TEMPLATES.find((t) => t.name === params.name)
-                    if (tmpl) setOptions((prev) => ({ ...prev, ...tmpl.options }))
-                  }
-                  break
-                case 'report':
-                  break
-              }
-            }}
-          />
+	          {/* 底部留白，ChatPanel 已移至浮动弹窗 */}
         </main>
       </div>
+
+      {/* AI 浮动聊天按钮 */}
+      <button
+        onClick={() => setShowChat(!showChat)}
+        className="fixed bottom-12 right-4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all z-40 cursor-pointer"
+        title="AI 助手"
+      >
+        <MessageCircle className="w-5 h-5" />
+      </button>
+
+      {/* AI 聊天弹窗 - 右下角弹出 */}
+      {showChat && (
+        <div className="fixed inset-0 bg-black/20 z-50 flex items-end justify-end p-4 pointer-events-none" onClick={() => setShowChat(false)}>
+          <div className="w-96 h-[520px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 shrink-0">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">🤖 AI 助手</span>
+              <button onClick={() => setShowChat(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ChatPanel aiAvailable={aiAvailable} onAction={(action, params) => {
+                switch (action) {
+                  case 'scan':
+                    if (params.url) setUrl(params.url)
+                    setTimeout(() => autoScan(), 500)
+                    break
+                  case 'stop':
+                    if (activeTask) stopScan(activeTask.id)
+                    break
+                  case 'template':
+                    if (params.name) {
+                      const tmpl = SCAN_TEMPLATES.find((t) => t.name === params.name)
+                      if (tmpl) setOptions((prev) => ({ ...prev, ...tmpl.options }))
+                    }
+                    break
+                }
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 状态栏 */}
       <StatusBar sqlmapConnected={sqlmapConnected} aiOnline={aiAvailable} tasks={tasks} />
