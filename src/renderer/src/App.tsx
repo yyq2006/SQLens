@@ -12,6 +12,7 @@ import { OptimizeParams } from './components/OptimizeParams'
 import { CustomParams } from './components/CustomParams'
 import { LogViewer } from './components/LogViewer'
 import { StatusBar } from './components/StatusBar'
+import { RequestEditor } from './components/RequestEditor'
 import { useScanManager } from './hooks/useScanManager'
 
 function App(): JSX.Element {
@@ -24,6 +25,7 @@ function App(): JSX.Element {
   const [logView, setLogView] = useState<'raw' | '精简'>('精简')
   const [aiMessage, setAiMessage] = useState('已就绪！输入 URL 或粘贴数据包，点击「一键全自动」开始扫描')
   const [aiInput, setAiInput] = useState('')
+  const [showEditor, setShowEditor] = useState(false)
 
   const {
     tasks, activeTask, activeIndex,
@@ -173,6 +175,12 @@ function App(): JSX.Element {
             >
               ⏹ 停止
             </button>
+            <button
+              onClick={() => setShowEditor(true)}
+              className="px-3 py-1.5 text-sm border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer"
+            >
+              📥 导入
+            </button>
             <select
               onChange={(e) => e.target.value && applyTemplate(e.target.value)}
               defaultValue=""
@@ -284,6 +292,20 @@ function App(): JSX.Element {
 
       {/* 状态栏 */}
       <StatusBar sqlmapConnected={sqlmapConnected} aiOnline={aiOnline} tasks={tasks} />
+
+      {/* 请求编辑器弹窗 */}
+      {showEditor && (
+        <RequestEditor
+          onApply={(parsed) => {
+            if (parsed.url) setUrl(parsed.url)
+            if (parsed.data || parsed.cookie || parsed.userAgent || parsed.headers) {
+              setOptions((prev) => ({ ...prev, ...parsed }))
+            }
+            setShowEditor(false)
+          }}
+          onClose={() => setShowEditor(false)}
+        />
+      )}
     </div>
   )
 }
