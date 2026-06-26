@@ -13,6 +13,7 @@ import { CustomParams } from './components/CustomParams'
 import { LogViewer } from './components/LogViewer'
 import { StatusBar } from './components/StatusBar'
 import { RequestEditor } from './components/RequestEditor'
+import { AiSettings } from './components/AiSettings'
 import { useScanManager } from './hooks/useScanManager'
 
 function App(): JSX.Element {
@@ -20,23 +21,26 @@ function App(): JSX.Element {
   const [url, setUrl] = useState('')
   const [options, setOptions] = useState<ScanOptions>(DEFAULT_OPTIONS)
   const [sqlmapConnected, setSqlmapConnected] = useState(false)
-  const [aiOnline] = useState(true)
   const [activeSidebar, setActiveSidebar] = useState('目标')
   const [logView, setLogView] = useState<'raw' | '精简'>('精简')
   const [aiMessage, setAiMessage] = useState('已就绪！输入 URL 或粘贴数据包，点击「一键全自动」开始扫描')
   const [aiInput, setAiInput] = useState('')
   const [showEditor, setShowEditor] = useState(false)
+  const [showAiSettings, setShowAiSettings] = useState(false)
+  const [aiAvailable, setAiAvailable] = useState(false)
 
   const {
     tasks, activeTask, activeIndex,
     setActiveIndex, createTask, startScan, stopScan
   } = useScanManager()
 
-  // ---- sqlmapapi 连接 ----
+  // ---- sqlmapapi 连接 & AI 检查 ----
   useEffect(() => {
     const init = async (): Promise<void> => {
       const result = await window.sqlens.startSqlmapApi()
       setSqlmapConnected(result.success)
+      const aiCheck = await window.sqlens.checkAi()
+      setAiAvailable(aiCheck.available)
     }
     init()
 
@@ -55,20 +59,41 @@ function App(): JSX.Element {
     }
   }, [])
 
-  // ---- 一键全自动 ----
+  // ---- 一键全自动（带 AI 分析） ----
   const autoScan = useCallback(async () => {
     if (!url.trim() || !sqlmapConnected) return
 
+    // AI 分析请求
+    if (aiAvailable) {
+      setAiMessage('🤖 AI 正在分析请求...')
+      const aiResult = await window.sqlens.analyzeRequest(url)
+      if (aiResult.success && aiResult.data) {
+        const { data } = aiResult
+        // 应用 AI 推荐参数
+        setOptions((prev) => ({
+          ...prev,
+          level: data.recommendLevel,
+          risk: data.recommendRisk,
+          tech: data.recommendTech.split('').filter((t): t is 'B' | 'E' | 'U' | 'S' | 'T' =>
+            ['B', 'E', 'U', 'S', 'T'].includes(t)),
+          tamper: data.hasWaf ? data.recommendTamper : prev.tamper
+        }))
+        setAiMessage(`🤖 AI 分析: ${data.note}`)
+      } else {
+        setAiMessage(`⚠️ AI 分析暂不可用: ${aiResult.error}，使用默认配置`)
+      }
+    }
+
+    // 创建并启动任务
     const taskId = await createTask(url)
     if (!taskId) {
-      setAiMessage('❌ 创建任务失败，请检查 sqlmapapi 是否正常运行')
+      setAiMessage('❌ 创建任务失败')
       return
     }
 
-    // 应用当前配置，等一会让任务创建好
     setTimeout(() => startScan(taskId, { ...options, url }), 300)
-    setAiMessage(`✅ 已启动扫描: ${url}`)
-  }, [url, options, sqlmapConnected, createTask, startScan])
+    setAiMessage(aiAvailable ? '✅ AI 已配置参数，扫描进行中...' : '✅ 扫描进行中...')
+  }, [url, options, sqlmapConnected, aiAvailable, createTask, startScan])
 
   // ---- 模板切换 ----
   const applyTemplate = useCallback((name: string) => {
@@ -80,32 +105,57 @@ function App(): JSX.Element {
   }, [])
 
   // ---- AI 对话发送 ----
-  const sendAiMessage = useCallback(() => {
+  const sendAiMessage = useCallback(async () => {
     if (!aiInput.trim()) return
     const msg = aiInput.trim()
     setAiInput('')
 
-    if (msg.includes('扫') || msg.includes('scan')) {
-      // 尝试从消息中提取 URL
-      const urlMatch = msg.match(/https?:\/\/[^\s]+/)
-      if (urlMatch) {
-        setUrl(urlMatch[0])
-        setTimeout(() => autoScan(), 100)
-      } else if (url) {
-        autoScan()
-      }
-      setAiMessage('🔍 正在扫描...')
-    } else if (msg.includes('停')) {
-      if (activeTask) stopScan(activeTask.id)
-      setAiMessage('⏹ 已停止扫描')
-    } else if (msg.includes('模板')) {
-      setAiMessage('可用模板: 快速检测 / 深度枚举 / WAF绕过 / 登录扫描')
-    } else {
-      setAiMessage(`🤔 我理解您的指令了，但尚未实现该功能的自动解析。请尝试: "扫描这个网站"、"停止"、"应用模板"`)
-    }
-  }, [aiInput, url, autoScan, activeTask, stopScan])
+    // 先显示用户消息
+    setAiMessage(`🙋 ${msg}`)
 
-  // ---- 根据侧边栏切换滚动到对应参数区 ----
+    if (aiAvailable) {
+      const context = `当前URL: ${url}, 活跃任务: ${activeTask?.status || '无'}`
+      const result = await window.sqlens.understandCommand(msg, context)
+      if (result.success && result.data) {
+        const { data } = result
+        setAiMessage(`🤖 ${data.reply}`)
+
+        // 根据意图执行操作
+        switch (data.action) {
+          case 'scan':
+            if (data.params.url) setUrl(data.params.url)
+            setTimeout(() => autoScan(), 500)
+            break
+          case 'stop':
+            if (activeTask) stopScan(activeTask.id)
+            break
+          case 'help':
+            break
+          default:
+            break
+        }
+      } else {
+        setAiMessage(`❌ ${result.error || '无法理解指令'}`)
+      }
+    } else {
+      // 离线简单匹配
+      if (msg.includes('扫') || msg.includes('scan')) {
+        const urlMatch = msg.match(/https?:\/\/[^\s]+/)
+        if (urlMatch) { setUrl(urlMatch[0]); setTimeout(() => autoScan(), 100) }
+        else if (url) autoScan()
+        else setAiMessage('🤖 请先输入目标 URL')
+      } else if (msg.includes('停')) {
+        if (activeTask) stopScan(activeTask.id)
+        setAiMessage('⏹ 已停止')
+      } else if (msg.includes('模板')) {
+        setAiMessage('可用模板: 快速检测 / 深度枚举 / WAF绕过 / 登录扫描')
+      } else {
+        setAiMessage('🤖 试试说: "扫描这个网站"、"停止"、"应用模板"')
+      }
+    }
+  }, [aiInput, url, aiAvailable, autoScan, activeTask, stopScan])
+
+  // ---- 根据侧边栏切换 ----
   const sidebarToParam = (label: string): string => {
     const map: Record<string, string> = {
       '目标': '目标与请求',
@@ -117,6 +167,11 @@ function App(): JSX.Element {
       '自定义参数': '自定义参数'
     }
     return map[label] || '目标与请求'
+  }
+
+  const handleSidebarChange = (label: string) => {
+    setActiveSidebar(label)
+    if (label === '设置') setShowAiSettings(true)
   }
 
   // ---- 渲染 ----
@@ -136,7 +191,7 @@ function App(): JSX.Element {
 
       <div className="flex-1 flex overflow-hidden">
         {/* 侧边栏 */}
-        <Sidebar active={activeSidebar} onChange={setActiveSidebar} />
+        <Sidebar active={activeSidebar} onChange={handleSidebarChange} />
 
         {/* 主区域 */}
         <main className="flex-1 flex flex-col overflow-hidden">
@@ -291,7 +346,7 @@ function App(): JSX.Element {
       </div>
 
       {/* 状态栏 */}
-      <StatusBar sqlmapConnected={sqlmapConnected} aiOnline={aiOnline} tasks={tasks} />
+      <StatusBar sqlmapConnected={sqlmapConnected} aiOnline={aiAvailable} tasks={tasks} />
 
       {/* 请求编辑器弹窗 */}
       {showEditor && (
@@ -304,6 +359,18 @@ function App(): JSX.Element {
             setShowEditor(false)
           }}
           onClose={() => setShowEditor(false)}
+        />
+      )}
+
+      {/* AI 设置弹窗 */}
+      {showAiSettings && (
+        <AiSettings
+          onClose={() => setShowAiSettings(false)}
+          onSave={async () => {
+            const check = await window.sqlens.checkAi()
+            setAiAvailable(check.available)
+            setShowAiSettings(false)
+          }}
         />
       )}
     </div>
